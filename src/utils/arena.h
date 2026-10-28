@@ -6,13 +6,12 @@
 #define ARENA_ALIGNMENT 8
 
 typedef struct _arena {
-    size_t size;
-    size_t used;
+    size_t size ;
+    size_t used ;
     char*  start;
     pthread_mutex_t lock;   // protects 'used' (and the bump pointer) across threads 
 }Arena;
 
-/* Internal-only helper, not part of the public API */
 char* ask_memory(size_t size);
 
 Arena* createArena(size_t size);

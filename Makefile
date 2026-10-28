@@ -28,10 +28,14 @@ test:
 bench:
 	@$(MAKE) -C bench
 
+# actually runs the generated binary; pass arguments as `make run ARGS="foo bar"`
+run: $(BIN)
+	@./$(BIN) $(ARGS)
+
 clean:
 	@rm -rf build
 	@$(MAKE) -C tests clean
 	@$(MAKE) -C bench clean
 
 -include $(OBJS:.o=.d)
-.PHONY: all debug release test bench clean
+.PHONY: all debug release run test bench clean

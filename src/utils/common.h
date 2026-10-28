@@ -7,12 +7,15 @@
 #endif
 
 #if DEBUG_MODE
+// format string lives in __VA_ARGS__ so LOG("msg") needs no trailing comma
+#define LOG(...) do {                                               \
+        printf("Line : %d, Function : %s\n", __LINE__, __func__);   \
+        printf(__VA_ARGS__);                                        \
+        putchar('\n');                                              \
+    } while (0)
+#else
 #define NDEBUG
-
-#define LOG(fmt, ...)                                              \
-    printf("Line : %d, Function : %s\n", __LINE__, __func__ );     \
-    printf(fmt "\n", __VA_ARGS__)
-
+#define LOG(...) ((void)0)
 #endif
 
 

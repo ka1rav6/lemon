@@ -1,1 +1,12 @@
-.nvim.lua
+# Build output. No leading slash: also covers tests/build/ and bench/build/,
+# since each Makefile sets BUILD_DIR relative to itself (see config.mk).
+build/
+
+# Objects and depfiles from compiling by hand outside build/
+*.o
+*.d
+*.a
+
+# Crash dumps from aborts and sanitizer failures
+core
+vgcore.*
