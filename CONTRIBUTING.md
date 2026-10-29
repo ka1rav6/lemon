@@ -22,7 +22,7 @@ The compiler is written in plain C17. Keep it readable by someone learning compi
 
 | Kind | Location | How it runs |
 | --- | --- | --- |
-| Toolkit unit tests | `tests/base/*.c` | `make test-base` (sanitizer build) |
+| Toolkit unit tests | `tests/base/*.c` | `make test` (sanitizer build), via vendored `tests/greatest.h` |
 | Run tests | `tests/ok/NAME.lem` + `NAME.out` | compile, run, diff stdout (and exit code if `NAME.code` exists) |
 | Error tests | `tests/err/NAME.lem` | `// error: LINE:COL message` comments must match diagnostics exactly |
 | In-language tests | `#test` blocks, `tests/std/` | `lem test` |

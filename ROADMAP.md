@@ -75,14 +75,13 @@ M8 may move right after M5 if `#test` would help earlier.
 
 **Tasks**
 
-- [ ] Makefile with `debug` (sanitizers) and `release` targets
-- [ ] `arena.[ch]`: chunked bump allocator, `arena_alloc`, `arena_strdup`, `arena_release`
-- [ ] `vec.h`: `vec_push`, `vec_len`, `vec_pop`, `vec_free` (or vendor `stb_ds.h`)
-- [ ] `strbuf.[ch]`: append, `appendf`, `cstr`
-- [ ] `map.[ch]`: open addressing, string and pointer keys, iteration
-- [ ] `intern.[ch]`: `intern(const char*, len)` returning a unique pointer
-- [ ] `diag.[ch]`: `SrcLoc`, `error_at`, `warning_at`, caret printing, error count, `ICE()`
-- [ ] Unit tests for all of `src/base` in `tests/base/`
+- [x] Makefile with `debug` (sanitizers) and `release` targets
+- [x] `arena.[ch]`: `arena_alloc`, `arena_strdup`, `arena_reset`, `arena_destroy`. Single-threaded, one fixed `mmap` block
+- [x] `dynamic_array.h`: `GROW_ARRAY`/`FREE_ARRAY` for manually resized buffers, `DA_PUSH`/`DA_FREE` for `count`/`capacity`/`items` structs. This is the vec; no separate `vec.h`, no `stb_ds.h`
+- [ ] `strbuf.[ch]`: `append`, `appendf`, `cstr` — a `DA_PUSH` byte array plus `vsnprintf`
+- [ ] `map.[ch]`: open addressing, string and pointer keys, iteration, and `intern(const char*, len)` returning a unique pointer (interning is a lookup plus `arena_strdup`, not its own subsystem)
+- [ ] `diag.[ch]`: `SrcLoc`, `error_at`, `warning_at`, caret printing, error count, `ICE()`; a failed `arena_alloc` becomes `ICE()` here
+- [ ] Unit tests for `src/utils` in `tests/base/` under ASan and UBSan, using the vendored single-header [greatest](https://github.com/silentbicycle/greatest) (arena and dynamic array done in `utils_test.c`)
 - [ ] Throwaway calculator: lexer → Pratt parser → tagged-union AST → evaluator (`let`, `if`)
 - [ ] `tests/run.sh` skeleton
 
@@ -391,7 +390,7 @@ M8 may move right after M5 if `#test` would help earlier.
 
 | Kind | Location | How it runs | Added from |
 |---|---|---|---|
-| Toolkit unit tests | `tests/base/*.c` | compiled with sanitizers by `make test-base` | M0 |
+| Toolkit unit tests | `tests/base/*.c` | `make test`, compiled with sanitizers, one binary per file | M0 |
 | Run tests | `tests/ok/NAME.lem` + `NAME.out` | compile, run, diff stdout (and exit code if `NAME.code` exists) | M1 |
 | Error tests | `tests/err/NAME.lem` | comments `// error: LINE:COL message` must match diagnostics exactly | M2 |
 | In-language tests | `#test` blocks, `tests/std/` | `lem test` | M8 |

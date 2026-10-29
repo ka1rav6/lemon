@@ -16,7 +16,7 @@ char *ask_memory(size_t size)
   return (char *)ptr;
 }
 
-Arena *createArena(size_t size)
+Arena *arena_create(size_t size)
 {
   if (size == 0)
     return NULL;
@@ -32,11 +32,6 @@ Arena *createArena(size_t size)
   }
   ar->used = 0   ;
   ar->size = size;
-  if (pthread_mutex_init(&ar->lock, NULL) != 0) {
-    munmap(ar->start, ar->size);
-    free(ar);
-    return NULL;
-  }
   return ar;
 }
 
@@ -44,17 +39,13 @@ void *arena_alloc(Arena *ar, size_t size)
 {
   if (!ar || size == 0)
     return NULL;
-  pthread_mutex_lock(&ar->lock);
 
   size_t aligned = align_up(ar->used, ARENA_ALIGNMENT);
-  if (size > ar->size - aligned) {
-    pthread_mutex_unlock(&ar->lock);
+  if (aligned > ar->size || size > ar->size - aligned)
     return NULL;
-  }
   void *loc = ar->start + aligned;
   ar->used = aligned + size;
 
-  pthread_mutex_unlock(&ar->lock);
   return loc;
 }
 
@@ -64,7 +55,6 @@ void *arena_alloc(Arena *ar, size_t size)
 char *arena_strdup(Arena *ar, const char *s)
 {
   size_t len = strlen(s) + 1;
-  // arena_alloc already takes the lock so there is no extra locking needed here.
   char *copy = (char *)arena_alloc(ar, len);
   assert(copy != NULL);
   memcpy(copy, s, len);
@@ -76,17 +66,13 @@ void arena_reset(Arena *ar)
 {
   if (!ar)
     return;
-
-  pthread_mutex_lock(&ar->lock);
   // resetting the pointer to be at the start of the arena
   ar->used = 0; 
-  pthread_mutex_unlock(&ar->lock);
 }
 
-void destroyArena(Arena *ar) {
+void arena_destroy(Arena *ar) {
   if (!ar)
     return;
   munmap(ar->start, ar->size);
-  pthread_mutex_destroy(&ar->lock);
   free(ar);
 }

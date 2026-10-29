@@ -9,7 +9,7 @@ all: $(BINS)
 	 if [ -x run.sh ]; then ./run.sh || fail=1; fi; \
 	 exit $$fail
 
-$(BUILD_DIR)/%: %.c $(LIB_SRCS)
+$(BUILD_DIR)/%: %.c greatest.h $(LIB_SRCS)
 	@mkdir -p $(@D)
 	@$(CC) $(CFLAGS) $< $(LIB_SRCS) -o $@ $(LDFLAGS)
 
