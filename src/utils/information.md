@@ -25,6 +25,22 @@ There are two styles, for the two things a compiler needs:
 - `GROW_ARRAY` / `FREE_ARRAY` resize a buffer you are managing yourself, like a hash table rebuilding its buckets.
 - `DA_PUSH` / `DA_FREE` work on any struct holding `count`, `capacity` and an `items` pointer, zero-initialised as `Tokens t = {0};`. The element type is read off `items`, so the macro needs no type argument. This is the growable array the roadmap calls `vec` — there is no separate `vec.h`.
 
+### Map - (map.h and map.c)
+
+A simple implementation of a hashmap with open addressing.
+
+Keys are `const char*` either way, and `map_init` decides what that pointer
+means: `MAP_STR_KEYS` compares the characters, `MAP_PTR_KEYS` compares the
+address. 
+
+Most of the compiler wants the second one, because identifiers are
+interned first and after that two names are the same name exactly when their
+pointers match.
+
+`map_intern(m, ar, s, len)` is that interning thing: a lookup, and on
+a miss a copy of the slice into the arena. It takes a length because the lexer
+hands over a slice of the source file, which has no NUL to stop at.
+
 ### Common - (common.h)
 
 Contains a simple implementation of a logger (too simple to be honest)

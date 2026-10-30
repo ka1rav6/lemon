@@ -79,7 +79,7 @@ M8 may move right after M5 if `#test` would help earlier.
 - [x] `arena.[ch]`: `arena_alloc`, `arena_strdup`, `arena_reset`, `arena_destroy`. Single-threaded, one fixed `mmap` block
 - [x] `dynamic_array.h`: `GROW_ARRAY`/`FREE_ARRAY` for manually resized buffers, `DA_PUSH`/`DA_FREE` for `count`/`capacity`/`items` structs. This is the vec; no separate `vec.h`, no `stb_ds.h`
 - [ ] `strbuf.[ch]`: `append`, `appendf`, `cstr` — a `DA_PUSH` byte array plus `vsnprintf`
-- [ ] `map.[ch]`: open addressing, string and pointer keys, iteration, and `intern(const char*, len)` returning a unique pointer (interning is a lookup plus `arena_strdup`, not its own subsystem)
+- [x] `map.[ch]`: open addressing, string and pointer keys, iteration, and `intern(const char*, len)` returning a unique pointer (interning is a lookup plus `arena_strdup`, not its own subsystem)
 - [ ] `diag.[ch]`: `SrcLoc`, `error_at`, `warning_at`, caret printing, error count, `ICE()`; a failed `arena_alloc` becomes `ICE()` here
 - [ ] Unit tests for `src/utils` in `tests/base/` under ASan and UBSan, using the vendored single-header [greatest](https://github.com/silentbicycle/greatest) (arena and dynamic array done in `utils_test.c`)
 - [ ] Throwaway calculator: lexer → Pratt parser → tagged-union AST → evaluator (`let`, `if`)
