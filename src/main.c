@@ -18,6 +18,7 @@ void process_arguments(int argc, const char** argv)
 #define ARGV1_EQ(str) \
     (strcmp(argv[1], str) == 0)
 
+    (void)argc;  // only the debug build reads it
 #if DEBUG_MODE == 1
     for (int i = 1; i < argc; i++)
         printf("Arg #%d\tstring: %s\n", i, argv[i]);

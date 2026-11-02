@@ -3,6 +3,7 @@
 #include "../../src/utils/arena.h"
 #include "../../src/utils/dynamic_array.h"
 #include "../../src/utils/map.h"
+#include "../../src/utils/strbuf.h"
 
 
 TEST arena_refuses_an_allocation_past_the_end(void)
@@ -77,10 +78,10 @@ typedef struct {
 TEST da_first_push_takes_the_floor_capacity(void)
 {
     Ints xs = {0};
-    DA_PUSH(xs, 42);
+    DA_PUSH(xs, 42, NULL);
     ASSERT_EQ_FMT((size_t)8, xs.capacity, "%zu");
     ASSERT_EQ(42, xs.items[0]);
-    DA_FREE(xs);
+    DA_FREE(xs, NULL);
     PASS();
 }
 
@@ -88,26 +89,45 @@ TEST da_push_grows_past_the_initial_capacity(void)
 {
     Ints xs = {0};
     for (int i = 0; i < 100; i++)
-        DA_PUSH(xs, i);
+        DA_PUSH(xs, i, NULL);
 
     ASSERT_EQ_FMT((size_t)100, xs.count, "%zu");
     ASSERT(xs.capacity >= xs.count);
     ASSERT_EQ(0, xs.items[0]);
     ASSERT_EQ(99, xs.items[99]);
 
-    DA_FREE(xs);
+    DA_FREE(xs, NULL);
     PASS();
 }
 
 TEST da_free_clears_the_array(void)
 {
     Ints xs = {0};
-    DA_PUSH(xs, 1);
-    DA_FREE(xs);
+    DA_PUSH(xs, 1, NULL);
+    DA_FREE(xs, NULL);
 
     ASSERT(xs.items == NULL);
     ASSERT_EQ_FMT((size_t)0, xs.count, "%zu");
     ASSERT_EQ_FMT((size_t)0, xs.capacity, "%zu");
+    PASS();
+}
+
+TEST da_on_an_arena_grows_without_freeing(void)
+{
+    Arena* ar = arena_create(64 * 1024);
+    Ints xs = {0};
+    for (int i = 0; i < 100; i++)
+        DA_PUSH(xs, i, ar);
+
+    ASSERT_EQ_FMT((size_t)100, xs.count, "%zu");
+    ASSERT_EQ(0, xs.items[0]);
+    ASSERT_EQ(99, xs.items[99]);
+    ASSERT((char*)xs.items >= ar->start);
+    ASSERT((char*)xs.items < ar->start + ar->size);
+
+    DA_FREE(xs, ar);  // must not free arena memory
+    ASSERT(xs.items == NULL);
+    arena_destroy(ar);
     PASS();
 }
 
@@ -116,6 +136,7 @@ SUITE(dynamic_array_suite)
     RUN_TEST(da_first_push_takes_the_floor_capacity);
     RUN_TEST(da_push_grows_past_the_initial_capacity);
     RUN_TEST(da_free_clears_the_array);
+    RUN_TEST(da_on_an_arena_grows_without_freeing);
 }
 
 TEST map_get_finds_what_put_stored(void)
@@ -299,6 +320,111 @@ SUITE(map_suite)
 }
 
 
+TEST strbuf_appends_chars_and_strings(void)
+{
+    Strbuf* s = strbuf_create(NULL);
+    ASSERT(s != NULL);
+    ASSERT(appendc(s, 'a'));
+    ASSERT(append(s, "bc"));
+    ASSERT(STR_APPEND(s, 'd'));
+    ASSERT(STR_APPEND(s, "ef"));
+
+    ASSERT_EQ_FMT((size_t)6, s->count, "%zu");
+    ASSERT_STR_EQ("abcdef", cstr(s));
+    ASSERT_EQ_FMT((size_t)6, s->count, "%zu");  // cstr does not count the NUL
+    ASSERT(append(s, "gh"));
+    ASSERT_STR_EQ("abcdefgh", cstr(s));
+
+    strbuf_destory(s);
+    PASS();
+}
+
+TEST strbuf_on_an_arena_outgrows_its_first_block(void)
+{
+    Arena*  ar = arena_create(64 * 1024);
+    Strbuf* s  = strbuf_create(ar);
+    ASSERT(s != NULL);
+    for (int i = 0; i < 100; i++)
+        ASSERT(appendc(s, 'x'));
+
+    ASSERT_EQ_FMT((size_t)100, s->count, "%zu");
+    ASSERT_EQ_FMT((size_t)100, strlen(cstr(s)), "%zu");
+    ASSERT((char*)s->items >= ar->start);
+
+    strbuf_destory(s);  // must not free arena memory
+    arena_destroy(ar);
+    PASS();
+}
+
+TEST strbuf_appendf_formats_and_keeps_appending(void)
+{
+    Strbuf* s = strbuf_create(NULL);
+    ASSERT(appendf(s, "int %s(void) {", "fib"));
+    ASSERT(append(s, " // "));
+    ASSERT(appendf(s, "#line %d", 42));
+
+    ASSERT_STR_EQ("int fib(void) { // #line 42", cstr(s));
+    ASSERT_EQ_FMT(strlen("int fib(void) { // #line 42"), s->count, "%zu");
+
+    strbuf_destory(s);
+    PASS();
+}
+
+TEST strbuf_appendf_grows_past_one_block(void)
+{
+    Strbuf* s = strbuf_create(NULL);
+    // one call whose output dwarfs the current capacity, so reserve() has to
+    // jump several doublings at once
+    ASSERT(appendf(s, "%500d", 7));
+    ASSERT_EQ_FMT((size_t)500, s->count, "%zu");
+    ASSERT_EQ('7', s->items[499]);
+    ASSERT_EQ_FMT((size_t)500, strlen(cstr(s)), "%zu");
+
+    // and again, from a buffer that already has contents
+    ASSERT(appendf(s, "%500d", 8));
+    ASSERT_EQ_FMT((size_t)1000, s->count, "%zu");
+    ASSERT_EQ('8', s->items[999]);
+
+    strbuf_destory(s);
+    PASS();
+}
+
+TEST strbuf_appendf_on_an_arena(void)
+{
+    Arena*  ar = arena_create(64 * 1024);
+    Strbuf* s  = strbuf_create(ar);
+    for (int i = 0; i < 50; i++)
+        ASSERT(appendf(s, "%d,", i));
+
+    ASSERT_EQ(0, strncmp("0,1,2,3,", cstr(s), 8));
+    ASSERT_EQ_FMT((size_t)140, s->count, "%zu");
+    ASSERT((char*)s->items >= ar->start);
+
+    strbuf_destory(s);
+    arena_destroy(ar);
+    PASS();
+}
+
+TEST strbuf_refuses_a_null_buffer(void)
+{
+    ASSERT_FALSE(appendc(NULL, 'a'));
+    ASSERT_FALSE(append (NULL, "a"));
+    ASSERT_FALSE(appendf(NULL, "a"));
+    ASSERT(cstr(NULL) == NULL);
+    PASS();
+}
+
+SUITE(strbuf_suite)
+{
+    RUN_TEST(strbuf_appends_chars_and_strings);
+    RUN_TEST(strbuf_on_an_arena_outgrows_its_first_block);
+    RUN_TEST(strbuf_appendf_formats_and_keeps_appending);
+    RUN_TEST(strbuf_appendf_grows_past_one_block);
+    RUN_TEST(strbuf_appendf_on_an_arena);
+    RUN_TEST(strbuf_refuses_a_null_buffer);
+}
+
+
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv)
@@ -307,5 +433,6 @@ int main(int argc, char **argv)
     RUN_SUITE(arena_suite);
     RUN_SUITE(dynamic_array_suite);
     RUN_SUITE(map_suite);
+    RUN_SUITE(strbuf_suite);
     GREATEST_MAIN_END();
 }
