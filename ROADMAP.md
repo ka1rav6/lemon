@@ -81,7 +81,10 @@ M8 may move right after M5 if `#test` would help earlier.
 - [x] `strbuf.[ch]`: `append`, `appendf`, `cstr` — a `DA_PUSH` byte array plus `vsnprintf`
 - [x] `map.[ch]`: open addressing, string and pointer keys, iteration, and `intern(const char*, len)` returning a unique pointer (interning is a lookup plus `arena_strdup`, not its own subsystem)
 - [x] Unit tests for `src/utils` in `tests/base/` under ASan and UBSan, using the vendored single-header [greatest](https://github.com/silentbicycle/greatest) (arena, dynamic array and map done in `utils_test.c`)
-- [ ] Throwaway calculator: lexer → Pratt parser → tagged-union AST → evaluator (`let`, `if`)
+- [x] Throwaway calculator: lexer 
+- [ ] Throwaway calculator: Pratt parser 
+- [ ] Throwaway calculator: Tagged-union AST 
+- [ ] Throwaway calculator: evaluator (`let`, `if`)
 - [ ] `tests/run.sh` skeleton
 
 **Exit criteria**

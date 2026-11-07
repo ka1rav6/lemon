@@ -10,3 +10,5 @@ build/
 # Crash dumps from aborts and sanitizer failures
 core
 vgcore.*
+
+docs/lemon_learner.*
