@@ -6,7 +6,7 @@
 /* ----- Standard Library Includes ----- */
 #include <stdlib.h>
 
-/* -----   Custom File Includes    ----- */
+/* ----- Custom File Includes ----- */
 #include "arena.h"
 #include "common.h"
 
@@ -27,6 +27,7 @@
 // `arena` NULL means the heap and needs a DA_FREE; an arena array lives until
 // the arena dies, and DA_FREE then only zeroes the struct. Pass the same
 // `arena` to both macros, or DA_FREE will free() memory the heap never gave.
+
 #define DA_PUSH(da, value, arena)                                              \
     do {                                                                       \
         if ((da).capacity < (da).count + 1) {                                  \
