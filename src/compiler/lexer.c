@@ -3,8 +3,10 @@
 #include "../utils/arena.h"
 #include "../utils/dynamic_array.h"
 
+// the standard error message when the arena allocated is too small
 static const char* const ERR_NO_SPACE = "source does not fit in the compiler arena";
 
+// reads file and returns the buffer
 static char* read_file(Arena* ar, const char* filename, size_t* size, const char** why)
 {
     FILE* f = fopen(filename, "rb");
@@ -30,6 +32,8 @@ static char* read_file(Arena* ar, const char* filename, size_t* size, const char
     return buf;
 }
 
+// initializes the lexer. Returns NULL on an array, 
+// with a reason inside `why`
 Lexer* lexer_init(Arena* ar, const char* file, const char** why)
 {
     const char* unread = NULL;
@@ -66,11 +70,14 @@ Lexer* lexer_init(Arena* ar, const char* file, const char** why)
     return l;
 }
 
+// we get the exact column (starting from 1) of an index, by subtracting the line_start
 static inline u64 column_at(const Lexer* l, size_t index)
 {
     return (u64)(index - l->line_start) + 1;
 }
 
+// Creates and pushes the token into the token array owned by the lexer
+// used to be a macro
 static void push_token(Lexer* l, TokenType type, u64 number, size_t start)
 {
     Token t = {
@@ -113,6 +120,8 @@ static size_t lex_number(Lexer* l, size_t start)
     return end;
 }
 
+// the public function to tokenize the entire file
+// returns TokenArray (the one owned by the lexer created)
 TokenArray* tokenize_file(Lexer* l)
 {
     for (; l->index < l->file_size; l->index++){

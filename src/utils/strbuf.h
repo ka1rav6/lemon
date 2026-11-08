@@ -24,7 +24,7 @@ bool append (Strbuf*, const char*);
 
 // printf into the buffer. The attribute is what makes the compiler check the
 // format string against the arguments at every call site
-#if defined(__GNUC__)
+#if defined(__GNUC__) // as format attribute exists only if __GNUC__ is defined
 bool appendf(Strbuf*, const char*, ...) __attribute__((format(printf, 2, 3)));
 #else
 bool appendf(Strbuf*, const char*, ...);

@@ -40,6 +40,8 @@
 
 typedef uint64_t u64;
 
+// this structure is and will be a part of every struct 
+// where this data is important hence declared in this file
 typedef struct _SrcLoc{
     const char* file  ;
     u64         line  ;

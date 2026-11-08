@@ -4,6 +4,8 @@
 #include "../utils/common.h"
 #include "../utils/arena.h"
 
+/* --------------- Some Macros --------------- */
+
 // the one list of token names: the enum below and ENUM_NAMES both read it
 #define TOKEN_TYPE_LIST(X) \
     X(TOKEN_NUMBER)        \
@@ -16,6 +18,9 @@
     X(TOKEN_EOF   )
 
 #define X(name) name,
+
+/* -------------------- Token related declarations ------------------ */
+
 typedef enum _TokenType{
     TOKEN_TYPE_LIST(X)
 } TokenType;
@@ -33,6 +38,8 @@ typedef struct _TokenArray{
     size_t count   ;
     size_t capacity;
 }TokenArray;
+
+/* -------------------- Lexer Declaration ------------------ */
 
 typedef struct _Lexer{
     TokenArray* tokens;

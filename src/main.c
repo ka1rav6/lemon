@@ -1,3 +1,9 @@
+/*
+ * This is the file where everything begins. When you write `lem` and follow it with a command,
+ * this file parses the arguments and dispatches to the correct function based on the command
+ */
+
+
 #include "utils/common.h"
 #include "utils/arena.h"
 #include "utils/dynamic_array.h"
@@ -5,6 +11,8 @@
 
 #include <stdbool.h>
 
+// The print and such debugging functions work only 
+// when in debug mode
 #if DEBUG_MODE == 1
 ENUM_NAMES(token_type_name, TOKEN_TYPE_LIST)
 #endif
@@ -13,17 +21,20 @@ void process_arguments(int, const char**);
 
 int main(int argc, const char** argv)
 {
+    // just writing `lem` should print the whole help
     if (argc <= 1){
         // print_help();
         return 0;
     }
     process_arguments(argc, argv);
-
     return 0;
 }
 
 void process_arguments(int argc, const char** argv)
 {
+
+// just a simple macro to clean things up, checks if the first argument 
+// (after `lem`) is equal to the string passed
 #define ARGV1_EQ(str) \
     (strcmp(argv[1], str) == 0)
 
@@ -32,7 +43,10 @@ void process_arguments(int argc, const char** argv)
         printf("Arg #%d\tstring: %s\n", i, argv[i]);
 #endif
     if (ARGV1_EQ("build")){
+        // the user wants us to compile something.
          if (argc < 3){
+             // later, just `lem build` will be able to compile the whole project. 
+             // But for now the focus is on single file compilation.
              fprintf(stderr, "usage: lem build <file>\n");
              return;
          }
@@ -46,6 +60,7 @@ void process_arguments(int argc, const char** argv)
              return;
          }
          TokenArray* toks = tokenize_file(lx);
+
 #if DEBUG_MODE == 1
          for (size_t i = 0; i < toks->count; i++){
              Token* t = &toks->items[i];
@@ -57,6 +72,7 @@ void process_arguments(int argc, const char** argv)
              putchar('\n');
          }
 #endif
+
          DA_FREE(*toks, NULL);
          arena_destroy(ar);
     }
@@ -65,5 +81,6 @@ void process_arguments(int argc, const char** argv)
     }
     LOG("argc : %d", argc);
 
+// this macro is no longer needed anymore
 #undef ARGV1_EQ
 }
