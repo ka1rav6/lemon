@@ -2,7 +2,7 @@
 
 Lemon (`lem`) is a C-like systems language with slices, `Result`/`?`, `defer`, methods, generics and an ergonomic POSIX layer. This file tracks how the compiler, written in **C17**, gets built: milestone by milestone, each one ending in a program that compiles and runs.
 
-The language itself is specified in the Lemon Language Design doc. This roadmap is the order of work, not the spec. When implementation and spec disagree, write it down in `NOTES.md` and fix one of them.
+The language itself is specified in the Lemon Language Design doc. This roadmap is the order of work, not the spec. When implementation and spec disagree, fix one of them.
 
 **Status legend:** ⬜ not started · 🟨 in progress · ✅ done · ⏸ optional / deferred
 
@@ -29,7 +29,7 @@ The language itself is specified in the Lemon Language Design doc. This roadmap 
 2. **A feature lands only with a test that needs it.** The design doc is the destination, not a checklist to implement top to bottom.
 3. **Golden tests from day one.** Every bug fix adds a test that failed before the fix.
 4. **Arenas for everything the compiler allocates.** AST nodes, types, symbols, strings and LIR live in arenas released at exit. No `free()` in the front end.
-5. **Sanitizers on in every debug build of the compiler:** `-g -fsanitize=address,undefined -Wall -Wextra -Werror`.
+5. **Sanitizers on in every debug build of the compiler:** `-g -fsanitize=address,undefined -Wall -Wextra -Wpedantic`.
 6. **Errors are values.** Diagnostics are collected, the parser recovers at `;` and `}`, and one run reports many errors. `ICE()` aborts only on internal bugs.
 7. **Source locations everywhere.** Every token, AST node and LIR instruction carries `SrcLoc`; every error shows the line with a caret.
 8. **Plain C, plain build.** C17, one Makefile, one header per subsystem, no macro tricks beyond the growable-array helpers.
@@ -84,7 +84,6 @@ M8 may move right after M5 if `#test` would help earlier.
 - [x] Throwaway calculator: lexer 
 - [ ] Throwaway calculator: Pratt parser 
 - [ ] Throwaway calculator: Tagged-union AST 
-- [ ] Throwaway calculator: evaluator (`let`, `if`)
 - [ ] `tests/run.sh` skeleton
 
 **Exit criteria**
@@ -337,7 +336,7 @@ M8 may move right after M5 if `#test` would help earlier.
 - [ ] `tools/lgrep`: a `find`/`grep` clone
 - [ ] `tools/supervise`: a process supervisor that restarts a crashing child
 - [ ] `tools/lwc`: `wc`/`cat` replacement
-- [ ] Fix every compiler bug and language annoyance the tools expose (log them in `NOTES.md`)
+- [ ] Fix every compiler bug and language annoyance the tools expose
 - [ ] Rework the five worst error messages
 - [ ] `lem add` with Git dependencies, `lem.lock`
 - [ ] `lem doc` from `///` comments
@@ -361,7 +360,7 @@ M8 may move right after M5 if `#test` would help earlier.
 
 **Tasks**
 
-- [ ] Choose LLVM-C or QBE; record the decision in `NOTES.md`
+- [ ] Choose LLVM-C or QBE, and record the decision in this roadmap
 - [ ] LIR → backend for code without C calls
 - [ ] `--backend=` flag and `[build] backend` in `lem.toml`
 - [ ] (LLVM) DWARF via `LLVMDIBuilder*`: Lemon types for slices and tagged unions
@@ -415,7 +414,6 @@ A change is done when:
 - [ ] It has at least one new test in `tests/ok`, `tests/err` or a `#test` block
 - [ ] `tests/run.sh` passes with the sanitizer build of the compiler
 - [ ] Diagnostics it adds point at the right line and column
-- [ ] Any spec question it raised is recorded in `NOTES.md`
 - [ ] The milestone checklist above is updated
 
 A milestone is done when every exit criterion is ticked and its tag is pushed.

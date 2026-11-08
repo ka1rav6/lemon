@@ -37,18 +37,25 @@ void process_arguments(int argc, const char** argv)
              return;
          }
          // this all will be actually in the `build` function once it has been created
-         Arena* ar = arena_create(1 << 16);
-         if (lexer_init(ar, argv[2]) == false){
-             fprintf(stderr, "lem: cannot read '%s'\n", argv[2]);
+         Arena* ar       = arena_create((size_t)1 << 30);
+         const char* why = NULL;
+         Lexer* lx       = lexer_init(ar, argv[2], &why);
+         if (lx == NULL){
+             fprintf(stderr, "lem: %s: '%s'\n", why, argv[2]);
              arena_destroy(ar);
              return;
          }
-         TokenArray* toks = tokenize_file();
+         TokenArray* toks = tokenize_file(lx);
 #if DEBUG_MODE == 1
-         for (size_t i = 0; i < toks->count; i++)
-             printf("%15zu\ttype %15s\tvalue %15d\tcol %15lu\n", i,
-                    token_type_name(toks->items[i].type), toks->items[i].value,
-                    (unsigned long)toks->items[i].data.character);
+         for (size_t i = 0; i < toks->count; i++){
+             Token* t = &toks->items[i];
+             printf("%4zu  %-14s  %s:%" PRIu64 ":%" PRIu64, i,
+                    token_type_name(t->type), t->loc.file,
+                    t->loc.line, t->loc.column);
+             if (t->type == TOKEN_NUMBER)
+                 printf("  number %" PRIu64, t->number);
+             putchar('\n');
+         }
 #endif
          DA_FREE(*toks, NULL);
          arena_destroy(ar);

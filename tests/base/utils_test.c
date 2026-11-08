@@ -335,7 +335,7 @@ TEST strbuf_appends_chars_and_strings(void)
     ASSERT(append(s, "gh"));
     ASSERT_STR_EQ("abcdefgh", cstr(s));
 
-    strbuf_destory(s);
+    strbuf_destroy(s);
     PASS();
 }
 
@@ -351,7 +351,7 @@ TEST strbuf_on_an_arena_outgrows_its_first_block(void)
     ASSERT_EQ_FMT((size_t)100, strlen(cstr(s)), "%zu");
     ASSERT((char*)s->items >= ar->start);
 
-    strbuf_destory(s);  // must not free arena memory
+    strbuf_destroy(s);  // must not free arena memory
     arena_destroy(ar);
     PASS();
 }
@@ -366,7 +366,7 @@ TEST strbuf_appendf_formats_and_keeps_appending(void)
     ASSERT_STR_EQ("int fib(void) { // #line 42", cstr(s));
     ASSERT_EQ_FMT(strlen("int fib(void) { // #line 42"), s->count, "%zu");
 
-    strbuf_destory(s);
+    strbuf_destroy(s);
     PASS();
 }
 
@@ -385,7 +385,7 @@ TEST strbuf_appendf_grows_past_one_block(void)
     ASSERT_EQ_FMT((size_t)1000, s->count, "%zu");
     ASSERT_EQ('8', s->items[999]);
 
-    strbuf_destory(s);
+    strbuf_destroy(s);
     PASS();
 }
 
@@ -400,7 +400,7 @@ TEST strbuf_appendf_on_an_arena(void)
     ASSERT_EQ_FMT((size_t)140, s->count, "%zu");
     ASSERT((char*)s->items >= ar->start);
 
-    strbuf_destory(s);
+    strbuf_destroy(s);
     arena_destroy(ar);
     PASS();
 }

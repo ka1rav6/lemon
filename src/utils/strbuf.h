@@ -16,7 +16,7 @@ typedef struct _Strbuf{
 
 /* ------------   Constructors and Destructors     ------------- */
 Strbuf* strbuf_create(Arena*); // if None => allocate on the heap
-void strbuf_destory(Strbuf*) ;
+void strbuf_destroy(Strbuf*) ;
 
 /* -------------   Different functions to Append   ------------- */
 bool appendc(Strbuf*, char);
@@ -30,7 +30,7 @@ bool appendf(Strbuf*, const char*, ...) __attribute__((format(printf, 2, 3)));
 bool appendf(Strbuf*, const char*, ...);
 #endif
 
-/* -------------   Reading the buffer back out     ------------- */
+/* -------------   Reading the buffer back out  ------------- */
 const char* cstr(Strbuf*);
 
 /* ------------- Helper Macros ------------- */

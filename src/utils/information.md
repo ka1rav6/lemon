@@ -33,7 +33,7 @@ Both take the allocator as their last argument: `NULL` is the heap, and an `Aren
 
 **Used for:** the generated C text in `emit_c.c` (M1), and every diagnostic message built up before it is printed.
 
-A growable `char` array : a `DA_PUSH` buffer with a header, so `strbuf_create(NULL)` gives a heap buffer you `strbuf_destory`, and `strbuf_create(ar)` puts both the header and the characters in the arena and the destroy becomes a no-op.
+A growable `char` array : a `DA_PUSH` buffer with a header, so `strbuf_create(NULL)` gives a heap buffer you `strbuf_destroy`, and `strbuf_create(ar)` puts both the header and the characters in the arena and the destroy becomes a no-op.
 
 `count` is the number of real characters and never includes a terminator. `cstr` writes the `'\0'` just past them and hands back the pointer, so appending afterwards simply overwrites it and the buffer is a valid C string whenever you ask for one.
 

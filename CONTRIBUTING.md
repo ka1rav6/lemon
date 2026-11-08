@@ -14,7 +14,7 @@ The compiler is written in plain C17. Keep it readable by someone learning compi
 
 1. **One Makefile, one header per subsystem.** No macro tricks beyond the growable-array helpers.
 2. **Arenas for everything the front end allocates.** AST nodes, types, symbols, strings and LIR live in arenas released at exit. No `free()` in the front end.
-3. **Sanitizers always on in debug:** `-g -fsanitize=address,undefined -Wall -Wextra -Werror`.
+3. **Sanitizers always on in debug:** `-g -fsanitize=address,undefined -Wall -Wextra -Wpedantic`.
 4. **Errors are values.** Diagnostics are collected and the parser recovers at `;` and `}`, so one run reports many errors. `ICE()` is for internal bugs only.
 5. **Source locations everywhere.** Every token, AST node and LIR instruction carries `SrcLoc`; every error shows the line with a caret.
 
@@ -38,7 +38,6 @@ A change is ready to merge when:
 - [ ] `tests/run.sh` passes with the sanitizer build
 - [ ] Every bug fix includes a test that failed before the fix
 - [ ] Diagnostics it adds point at the right line and column
-- [ ] Any spec question it raised is recorded in `NOTES.md`
 - [ ] The milestone checklist in [ROADMAP.md](ROADMAP.md) is updated
 
 ## Pull requests

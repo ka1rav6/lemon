@@ -34,9 +34,16 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <string.h>
 #include <assert.h>
 
 typedef uint64_t u64;
+
+typedef struct _SrcLoc{
+    const char* file  ;
+    u64         line  ;
+    u64         column;
+}SrcLoc;
 
 #endif

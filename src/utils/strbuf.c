@@ -18,7 +18,7 @@ Strbuf* strbuf_create(Arena* ar)
     return temp;
 }
 
-void strbuf_destory(Strbuf* str)
+void strbuf_destroy(Strbuf* str)
 {
     if (str == NULL || str->arena != NULL)
         return;  // an arena buffer goes when its arena does

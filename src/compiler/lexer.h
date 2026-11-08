@@ -1,8 +1,6 @@
 #ifndef LEMON_LEXER_H
 #define LEMON_LEXER_H
 
-#include <stdbool.h>
-
 #include "../utils/common.h"
 #include "../utils/arena.h"
 
@@ -23,17 +21,10 @@ typedef enum _TokenType{
 } TokenType;
 #undef X
 
-typedef struct _TokMetadata{
-    u64 line     ;
-    u64 character;
-    const char* file;
-}TokMetadata;
-
-
 typedef struct _Token{
     TokenType type  ;
-    int value       ;
-    TokMetadata data;
+    u64       number;
+    SrcLoc    loc   ;
 } Token;
 
 
@@ -49,10 +40,11 @@ typedef struct _Lexer{
     const char* data  ;
     size_t file_size  ;
     size_t index      ;
+    u64    line       ;
+    size_t line_start ;
 }Lexer;
 
-bool lexer_init(Arena* ar, const char* file);
-void tokenize(const char* line, size_t line_num);
-TokenArray* tokenize_file(void);
+Lexer*      lexer_init(Arena* ar, const char* file, const char** why);
+TokenArray* tokenize_file(Lexer* l);
 
-#endif // LEMON_LEXER_ H
+#endif // LEMON_LEXER_H
